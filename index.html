@@ -40,15 +40,14 @@
 
     /* CARD */
     .card {
-      margin: -60px auto 32px; /* menos agressivo */
+      margin: -60px auto 32px;
       background: #fff;
       width: 90%;
       max-width: 420px;
       border-radius: 20px;
-      padding: 32px 22px 26px; /* mais espaço no topo */
+      padding: 32px 22px 26px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.15);
       text-align: center;
-      position: relative;
     }
 
     .badge {
@@ -66,8 +65,8 @@
       font-family: 'Playfair Display', serif;
       font-size: 28px;
       margin: 12px 0 6px;
-      line-height: 1.25;              /* evita corte em acentos */
-      word-break: break-word;         /* nomes longos */
+      line-height: 1.25;
+      word-break: break-word;
     }
 
     .meta {
@@ -115,11 +114,23 @@
       gap: 6px;
     }
 
-    .gallery img {
+    .gallery-item {
+      text-align: center;
+    }
+
+    .gallery-item img {
       width: 100%;
       height: 90px;
       object-fit: cover;
       border-radius: 8px;
+    }
+
+    .gallery-item a {
+      display: block;
+      font-size: 12px;
+      margin-top: 4px;
+      color: #8c7454;
+      text-decoration: none;
     }
 
     footer {
@@ -129,14 +140,9 @@
       margin-bottom: 24px;
     }
 
-    /* AJUSTE EXTRA PARA TELAS MUITO PEQUENAS */
     @media (max-width: 360px) {
-      h1 {
-        font-size: 24px;
-      }
-      .card {
-        margin-top: -40px;
-      }
+      h1 { font-size: 24px; }
+      .card { margin-top: -40px; }
     }
   </style>
 </head>
@@ -178,14 +184,21 @@
 <script>
   const API_KEY = "cdefeccd93bfc2638d1d5e61add3d7e5";
   const EXPIRATION_SECONDS = 2592000; // 30 dias
+
   const gallery = document.getElementById("gallery");
   const status = document.getElementById("status");
+  const fileInput = document.getElementById("fileInput");
 
-  document.getElementById("fileInput").addEventListener("change", async function () {
+  fileInput.addEventListener("change", async function () {
     const file = this.files[0];
     if (!file) return;
 
-    status.textContent = "Enviando foto...";
+    if (file.size > 10 * 1024 * 1024) {
+      status.textContent = "❌ Envie fotos de até 10 MB.";
+      return;
+    }
+
+    status.textContent = "Enviando sua foto 💛 Aguarde...";
 
     const formData = new FormData();
     formData.append("image", file);
@@ -203,7 +216,10 @@
 
       if (result.success) {
         status.textContent = "✅ Foto enviada com sucesso!";
-        addToGallery(result.data.thumb.url);
+        addToGallery(
+          result.data.thumb.url,
+          result.data.url_viewer
+        );
       } else {
         status.textContent = "❌ Erro ao enviar a foto.";
       }
@@ -211,12 +227,26 @@
     } catch (e) {
       status.textContent = "❌ Falha de conexão.";
     }
+
+    fileInput.value = "";
   });
 
-  function addToGallery(url) {
+  function addToGallery(imageUrl, viewerUrl) {
+    const item = document.createElement("div");
+    item.className = "gallery-item";
+
     const img = document.createElement("img");
-    img.src = url;
-    gallery.prepend(img);
+    img.src = imageUrl;
+
+    const link = document.createElement("a");
+    link.href = viewerUrl;
+    link.target = "_blank";
+    link.textContent = "🔗 Ver foto enviada";
+
+    item.appendChild(img);
+    item.appendChild(link);
+
+    gallery.prepend(item);
   }
 </script>
 
