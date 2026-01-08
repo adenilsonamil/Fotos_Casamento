@@ -21,7 +21,9 @@
     /* HERO */
     .hero {
       position: relative;
-      height: 80vh;
+      min-height: 80vh;
+      height: auto;
+      padding: 120px 20px 160px;
       background-image: url("https://i.ibb.co/bj5vHJH0/6bf48bda-b893-4b59-9ecf-99182a32cabb.jpg");
       background-size: cover;
       background-position: center;
@@ -29,7 +31,6 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 0 20px;
     }
 
     .hero::after {
@@ -38,9 +39,10 @@
       inset: 0;
       background: linear-gradient(
         to bottom,
-        rgba(0,0,0,0.35),
-        rgba(0,0,0,0.15),
-        #f5f3f0
+        rgba(0,0,0,0.35) 0%,
+        rgba(0,0,0,0.20) 50%,
+        rgba(245,243,240,0.6) 75%,
+        #f5f3f0 100%
       );
     }
 
@@ -48,14 +50,14 @@
       position: relative;
       z-index: 2;
       color: #fff;
-      max-width: 500px;
+      max-width: 520px;
     }
 
     .hero-meta {
       font-size: 14px;
       letter-spacing: 1px;
       margin-bottom: 10px;
-      opacity: 0.9;
+      opacity: 0.95;
     }
 
     .hero h1 {
@@ -74,9 +76,9 @@
 
     /* CARD */
     .card {
-      margin: -140px auto 32px;
-	  position: relative;
-	  z-index: 5; /* garante que fique acima do degradê */
+      margin: -120px auto 32px;
+      position: relative;
+      z-index: 5;
       background: #fff;
       width: 90%;
       max-width: 420px;
@@ -104,6 +106,7 @@
       background: #c2a57a;
       color: #fff;
       font-weight: 600;
+      letter-spacing: 0.4px;
       border-radius: 14px;
       cursor: pointer;
       margin-bottom: 10px;
@@ -126,11 +129,23 @@
       gap: 6px;
     }
 
+    .gallery-item {
+      text-align: center;
+    }
+
     .gallery-item img {
       width: 100%;
       height: 90px;
       object-fit: cover;
       border-radius: 8px;
+    }
+
+    .gallery-item a {
+      display: block;
+      font-size: 11px;
+      margin-top: 4px;
+      color: #8c7454;
+      text-decoration: none;
     }
 
     footer {
@@ -143,13 +158,13 @@
     @media (max-width: 360px) {
       .hero h1 { font-size: 30px; }
       .hero p { font-size: 14px; }
-      .card { margin-top: -60px; }
+      .card { margin-top: -90px; }
     }
   </style>
 </head>
 <body>
 
-<!-- HERO IGUAL AO SITE PRINCIPAL -->
+<!-- HERO -->
 <section class="hero">
   <div class="hero-content">
     <div class="hero-meta">
@@ -165,7 +180,7 @@
   </div>
 </section>
 
-<!-- CONTEÚDO -->
+<!-- CARD -->
 <div class="card">
   <div class="info">
     Se você registrou um momento especial do nosso casamento,
@@ -208,18 +223,33 @@
       const formData = new FormData();
       formData.append("image", file);
 
-      const response = await fetch(
-        `https://api.imgbb.com/1/upload?key=${API_KEY}&expiration=${EXPIRATION_SECONDS}`,
-        { method: "POST", body: formData }
-      );
+      try {
+        const response = await fetch(
+          `https://api.imgbb.com/1/upload?key=${API_KEY}&expiration=${EXPIRATION_SECONDS}`,
+          { method: "POST", body: formData }
+        );
 
-      const result = await response.json();
-      if (result.success) {
-        const img = document.createElement("img");
-        img.src = result.data.thumb.url;
-        gallery.prepend(img);
-        enviados++;
-      }
+        const result = await response.json();
+
+        if (result.success) {
+          const item = document.createElement("div");
+          item.className = "gallery-item";
+
+          const img = document.createElement("img");
+          img.src = result.data.thumb.url;
+
+          const link = document.createElement("a");
+          link.href = result.data.url_viewer;
+          link.target = "_blank";
+          link.textContent = "Ver lembrança";
+
+          item.appendChild(img);
+          item.appendChild(link);
+
+          gallery.prepend(item);
+          enviados++;
+        }
+      } catch {}
     }
 
     status.textContent = `🎉 ${enviados} memória(s) compartilhada(s). Obrigado!`;
