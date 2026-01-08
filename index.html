@@ -2,10 +2,10 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Fotos do Casamento</title>
+  <title>Compartilhe nossas memórias | Jéssica & Adenilson</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Fontes elegantes -->
+  <!-- Fontes -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
 
   <style>
@@ -18,6 +18,7 @@
       color: #2f2f2f;
     }
 
+    /* HERO */
     .hero {
       height: 55vh;
       background-image: url("https://i.ibb.co/bj5vHJH0/6bf48bda-b893-4b59-9ecf-99182a32cabb.jpg");
@@ -32,19 +33,20 @@
       inset: 0;
       background: linear-gradient(
         to bottom,
-        rgba(0,0,0,0.2),
+        rgba(0,0,0,0.25),
         #f5f3f0
       );
     }
 
+    /* CARD */
     .card {
       margin: -60px auto 32px;
       background: #fff;
       width: 90%;
       max-width: 420px;
       border-radius: 20px;
-      padding: 32px 22px 26px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+      padding: 36px 22px 26px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
       text-align: center;
     }
 
@@ -55,16 +57,27 @@
       padding: 6px 14px;
       border-radius: 20px;
       font-weight: 600;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       display: inline-block;
     }
 
+    /* TÍTULO PRINCIPAL */
     h1 {
       font-family: 'Playfair Display', serif;
-      font-size: 28px;
-      margin: 12px 0 6px;
-      line-height: 1.25;
-      word-break: break-word;
+      font-size: 34px;
+      font-weight: 600;
+      margin: 14px 0 6px;
+      line-height: 1.15;
+      letter-spacing: 0.3px;
+      color: #2f2f2f;
+    }
+
+    .titulo-compartilhamento {
+      font-size: 15px;
+      font-weight: 400;
+      color: #8c7454;
+      margin-bottom: 18px;
+      font-style: italic;
     }
 
     .meta {
@@ -80,9 +93,10 @@
       font-size: 13px;
       color: #555;
       line-height: 1.5;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
+    /* BOTÃO */
     .upload-btn {
       display: block;
       width: 100%;
@@ -92,7 +106,7 @@
       font-weight: 600;
       border-radius: 14px;
       cursor: pointer;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .upload-btn input {
@@ -102,8 +116,10 @@
     .status {
       font-size: 13px;
       margin-bottom: 14px;
+      color: #555;
     }
 
+    /* GALERIA */
     .gallery {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -137,7 +153,7 @@
     }
 
     @media (max-width: 360px) {
-      h1 { font-size: 24px; }
+      h1 { font-size: 28px; }
       .card { margin-top: -40px; }
     }
   </style>
@@ -151,19 +167,23 @@
 
   <h1>Jéssica & Adenilson</h1>
 
+  <div class="titulo-compartilhamento">
+    Nossas memórias, vistas por você
+  </div>
+
   <div class="meta">
     📅 15 de agosto de 2026<br>
     📍 Anápolis – GO
   </div>
 
   <div class="info">
-    Compartilhe seus momentos especiais do nosso casamento.
-    Você pode enviar várias fotos de uma vez 💛
+    Este é um espaço para guardar, juntos, os registros do nosso grande dia.
+    Se você capturou um momento especial, compartilhe conosco 💛
   </div>
 
   <!-- UPLOAD -->
   <label class="upload-btn">
-    📤 Enviar fotos
+    📸 Compartilhar uma memória
     <input type="file" id="fileInput" accept="image/*" multiple>
   </label>
 
@@ -189,13 +209,13 @@
     const files = Array.from(this.files);
     if (!files.length) return;
 
-    status.textContent = `Enviando ${files.length} foto(s)... 💛`;
+    status.textContent = `Enviando ${files.length} memória(s)...`;
 
     let enviados = 0;
 
     for (const file of files) {
       if (file.size > MAX_SIZE) {
-        status.textContent = "❌ Uma ou mais fotos ultrapassam 10 MB.";
+        status.textContent = "❌ Uma ou mais imagens ultrapassam 10 MB.";
         continue;
       }
 
@@ -211,22 +231,19 @@
         const result = await response.json();
 
         if (result.success) {
-          addToGallery(
-            result.data.thumb.url,
-            result.data.url_viewer
-          );
+          addToGallery(result.data.thumb.url, result.data.url_viewer);
           enviados++;
-          status.textContent = `✅ ${enviados}/${files.length} foto(s) enviada(s)`;
+          status.textContent = `✅ ${enviados}/${files.length} memória(s) enviada(s)`;
         } else {
-          status.textContent = "❌ Erro ao enviar uma das fotos.";
+          status.textContent = "❌ Erro ao enviar uma das imagens.";
         }
 
-      } catch (e) {
+      } catch {
         status.textContent = "❌ Falha de conexão.";
       }
     }
 
-    status.textContent = `🎉 Envio concluído! ${enviados} foto(s) enviada(s).`;
+    status.textContent = `🎉 Obrigado! ${enviados} memória(s) compartilhada(s).`;
     fileInput.value = "";
   });
 
@@ -240,7 +257,7 @@
     const link = document.createElement("a");
     link.href = viewerUrl;
     link.target = "_blank";
-    link.textContent = "🔗 Ver foto enviada";
+    link.textContent = "Ver lembrança";
 
     item.appendChild(img);
     item.appendChild(link);
